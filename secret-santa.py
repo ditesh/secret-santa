@@ -59,83 +59,82 @@ def main(argv=None):
                 print >> sys.stderr, "No email password defined"
                 return(1)
 
-	attachment = open(attachmentPath, "r").read()
-	emails = open(emailPath, "r").readlines()
+        attachment = open(attachmentPath, "r").read()
+        emails = open(emailPath, "r").readlines()
 
-	if len(emails) <= 2:
-                print >> sys.stderr, "The email file needs to contain more then two email addresses"
-                return(1)
+        if len(emails) <= 2:
+            print >> sys.stderr, "The email file needs to contain more then two email addresses"
+            return(1)
 
-	random.shuffle(emails)
-	sanitizedEmails = []
+        random.shuffle(emails)
+        sanitizedEmails = []
 
-	for email in emails:
+        for email in emails:
 
-		email = email.strip()
+            email = email.strip()
 
-		if len(email) == 0:
-			continue
+            if len(email) == 0:
+                continue
 
-		sanitizedEmails.append(email)
+            sanitizedEmails.append(email)
 
-	if len(sanitizedEmails) <= 2:
-                print >> sys.stderr, "The email file needs to contain more then two valid email addresses "
-                return(1)
+        if len(sanitizedEmails) <= 2:
+            print >> sys.stderr, "The email file needs to contain more then two valid email addresses "
+            return(1)
 
-	i = 1
-	data = {}
-	length = len(sanitizedEmails)
+        i = 1
+        data = {}
+        length = len(sanitizedEmails)
 
-	while i < length -1:
+        while i < length -1:
 
-		data[sanitizedEmails[i]] = sanitizedEmails[i+1]
-		i += 1
+            data[sanitizedEmails[i]] = sanitizedEmails[i+1]
+            i += 1
 
-	data[sanitizedEmails[0]] = sanitizedEmails[1]
-	data[sanitizedEmails[length-1]] = sanitizedEmails[0]
+        data[sanitizedEmails[0]] = sanitizedEmails[1]
+        data[sanitizedEmails[length-1]] = sanitizedEmails[0]
 
-	s = 0
-	f = 0
-	mailServer = smtplib.SMTP()
+        s = 0
+        f = 0
+        mailServer = smtplib.SMTP()
 
-	if debug:
-		mailServer.set_debuglevel(100)
+        if debug: mailServer.set_debuglevel(100)
 
-	for santa, receipient in data.iteritems():
+        for santa, receipient in data.iteritems():
 
-		msg = MIMEMultipart()
-		msg['Subject'] = "Secret Santa!"
-		msg['From'] = fromEmail
-		msg['To'] = santa
-		msg.preamble = 'Secret Santa'
+            msg = MIMEMultipart()
+            msg['Subject'] = "Secret Santa!"
+            msg['From'] = fromEmail
+            msg['To'] = santa
+            msg.preamble = 'Secret Santa'
 
-		msgAlternative = MIMEMultipart('alternative')
-		msg.attach(msgAlternative)
+            msgAlternative = MIMEMultipart('alternative')
+            msg.attach(msgAlternative)
 
-		text = attachment.replace("${santa}", utils.parseaddr(santa)[0]);
-		text = text.replace("${receipient}", utils.parseaddr(receipient)[0]);
-		text = MIMEText(text, 'html')
-		msgAlternative.attach(text)
+            text = attachment.replace("${santa}", utils.parseaddr(santa)[0]);
+            text = text.replace("${receipient}", utils.parseaddr(receipient)[0]);
+            text = MIMEText(text, 'html')
+            msgAlternative.attach(text)
 
-		try:
-			mailServer.connect(host, port)
-			mailServer.ehlo()
-			mailServer.starttls()
-			mailServer.ehlo()
-			mailServer.login(username, password)
-			mailServer.sendmail(username, [santa], msg.as_string())
-			mailServer.close()
-			s += 1
+            try:
+                mailServer.connect(host, port)
+                mailServer.ehlo()
+                mailServer.starttls()
+                mailServer.ehlo()
+                mailServer.login(username, password)
+                mailServer.sendmail(username, [santa], msg.as_string())
+                mailServer.close()
+                s += 1
 
-		except Exception, e:
-			mailServer.close()
-			print >> sys.stderr, "Error when sending email to " + santa + " because of: ", str(e)
-			f += 1
+            except Exception, e:
+                print >> sys.stderr, "Error when sending email to " + santa + " because of: ", str(e)
+                mailServer.close()
+                f += 1
 
-	print "Automated Secret Santa has ended"
-	print s, "successes"
-	print f, "failures"
-	return(0)
+        print "Automated Secret Santa has ended"
+        print s, "successes"
+        print f, "failures"
+        return(0)
 
 if __name__ == "__main__":
 	sys.exit(main())

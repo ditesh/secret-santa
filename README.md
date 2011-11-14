@@ -1,5 +1,4 @@
-Automated Secret Santa
-by Ditesh Shashikant Gathani (c) 2010
+*Automated Secret Santa*
 
 The Automated Secret Santa program takes in a list of email addresses and template email to send, randomizes the email addresses, and sends off the secret santa details to the receipient.
 
